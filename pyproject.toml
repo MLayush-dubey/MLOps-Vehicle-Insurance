@@ -1,0 +1,11 @@
+[project]
+name = "src"
+version = "0.0.1"
+description = "Vehicle Insurance using MLOps practices"
+author = [{"name": "Ayush Dubey", "email": "aadubey1106@gmail.com"}]
+
+[tool.setuptools]
+packages = {find = {}}
+
+[tool.setuptools.dynamic]
+dependencies = {file = "requirements.txt"}
