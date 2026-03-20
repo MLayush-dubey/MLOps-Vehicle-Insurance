@@ -10,10 +10,10 @@ class DataIngestionArtifact:
     trained_file_path:str 
     test_file_path:str
 
-
 @dataclass   
 class DataValidationArtifact:
     validation_status: bool 
     message: str 
-    report_file_path: str
-#ye artifact hai jo data validation ke liye bana hai jo batayega ki output data valid hai ya nahi, iska logic likhenge in components.data_validation.py file
+    validation_report_file_path: str
+#ye artifact hai jo data validation ke liye bana hai jo batayega ki output data valid hai ya nahi, 
+# iska logic likhenge in components.data_validation.py file

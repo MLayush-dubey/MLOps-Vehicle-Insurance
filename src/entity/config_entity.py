@@ -32,8 +32,7 @@ class DataIngestionConfig:  #configuration values-->configured in constants.py
 #This method of TrainPipeline class is responsible for starting data ingestion component
 
 
-@dataclass 
+@dataclass
 class DataValidationConfig:
     data_validation_dir: str = os.path.join(training_pipeline_config.artifact_dir, DATA_VALIDATION_DIR_NAME)
-    validation_report_file_path = os.path.join(data_validation_dir, DATA_VALIDATION_REPORT_FILE_NAME)   #report.yaml
-#this method is validates the data by creating a report.yaml file in the data_validation_dir 
+    validation_report_file_path: str = os.path.join(data_validation_dir, DATA_VALIDATION_REPORT_FILE_NAME)
