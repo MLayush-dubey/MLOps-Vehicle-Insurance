@@ -17,3 +17,11 @@ class DataValidationArtifact:
     validation_report_file_path: str
 #ye artifact hai jo data validation ke liye bana hai jo batayega ki output data valid hai ya nahi, 
 # iska logic likhenge in components.data_validation.py file
+
+
+@dataclass
+class DataTransformationArtifact:
+    transformed_object_file_path: str
+    transformed_train_file_path: str
+    transformed_test_file_path: str
+
