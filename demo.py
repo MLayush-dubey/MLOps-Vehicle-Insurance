@@ -30,4 +30,3 @@ from src.pipline.training_pipeline import TrainingPipeline
 
 pipeline = TrainingPipeline()
 pipeline.run_pipeline()   #calling the method inside TrainingPipeline class
-

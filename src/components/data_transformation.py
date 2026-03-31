@@ -68,7 +68,7 @@ class DataTransformation:
             logging.info("Exited get_transformer_object method of DataTransformation class")
             return final_pipeline
 
-        except Exeption as e:
+        except Exception as e:
             logging.exception("Exception occurred in get_transformer_object method of DataTransformation class")
             raise MyException(e, sys) from e
 
@@ -188,6 +188,3 @@ class DataTransformation:
 
         except Exception as e:
             raise MyException(e, sys) from e
-
-
-

@@ -4,7 +4,7 @@ from datetime import date
 # For MongoDB connection
 DATABASE_NAME = "Proj1"
 COLLECTION_NAME = "Proj1-Data"
-MONGODB_URL_KEY = "MONGODB_URL"
+MONGODB_URL_KEY = "MONGODB_URL"   #set as env variable
 
 #general pipeline variables
 PIPELINE_NAME: str = ""
@@ -22,8 +22,8 @@ TEST_FILE_NAME: str = "test.csv"
 SCHEMA_FILE_PATH = os.path.join("config", "schema.yaml")
 
 #AWS/Cloud
-AWS_ACCESS_KEY_ID_ENV_KEY = "AWS_ACCESS_KEY_ID"
-AWS_SECRET_ACCESS_KEY_ENV_KEY = "AWS_SECRET_ACCESS_KEY"
+AWS_ACCESS_KEY_ID_ENV_KEY = "AWS_ACCESS_KEY_ID"   #set as env variable
+AWS_SECRET_ACCESS_KEY_ENV_KEY = "AWS_SECRET_ACCESS_KEY"  #set as env variable
 REGION_NAME = "us-east-1"
 
 
@@ -68,7 +68,7 @@ MIN_SAMPLES_SPLIT_RANDOM_STATE: int = 101
 MODEL Evaluation related constants
 """
 MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE: float = 0.02
-MODEL_BUCKET_NAME = "my-model-mlopsproj"
+MODEL_BUCKET_NAME = "my-model-mlopsproj-296198009695-us-east-1-an"
 MODEL_PUSHER_S3_KEY = "model-registry"
 
 
