@@ -51,27 +51,31 @@ class SimpleStorageService:
 
 #Note: static methods are created when a function does not require instance variables and just needs input
     @staticmethod
-    def read_object(object_name: str, decode: bool = True, make_readable: bool = False) -> Union[StringIO, str]:  #returns stringIO or normal str
+    def read_object(
+        object_name: str, decode: bool = True, make_readable: bool = False
+    ) -> Union[StringIO, str, bytes]:
         """
         Reads the specified S3 object with optional decoding and formatting.
 
         Args:
-            object_name (str): The S3 object name.
-            decode (bool): Whether to decode the object content as a string.
-            make_readable (bool): Whether to convert content to StringIO for DataFrame usage.
+            object_name: S3 ObjectSummary (has .get()).
+            decode: If True, decode body as UTF-8 text; if False, return raw bytes (e.g. pickle).
+            make_readable: If True, wrap decoded text in StringIO for pandas read_csv.
 
         Returns:
-            Union[StringIO, str]: The content of the object, as a StringIO or decoded string.
+            StringIO (CSV path), str (decoded text), or bytes (pickle / binary).
         """
         try:
-            func = (
-                lambda: object_name.get()["Body"].read().decode()  #s3 object k andhar ke contents ko read krega, bytes meh rahega toh usko str meh convert krega
-                if decode else object_name.get()["Body"].read()  #agar decode=False-->returns raw bytes without decoding
-            )
-
-            #convert to stringIO if make_readable = True
-            conv_func = lambda: StringIO(func() if make_readable else func())  #if make_readable = true, func() returns string and then stringIO(func()) becomes memory based file which pandas can read
-            return conv_func()
+            raw: bytes = object_name.get()["Body"].read()
+            if decode:
+                text = raw.decode()
+                if make_readable:
+                    return StringIO(text)
+                return text
+            # decode=False: never pass bytes to StringIO (pickle.loads needs bytes)
+            if make_readable:
+                return StringIO(raw.decode())
+            return raw
         except Exception as e:
             raise MyException(e, sys) from e
 #decode = True rehta hai for csv files, qki csv binary se decode() hoga-->str(text) banega, vaha se stringIO usko wrap krke pandas read kr payega 

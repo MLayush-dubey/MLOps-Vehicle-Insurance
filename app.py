@@ -1,3 +1,8 @@
+import json
+import os
+import time
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -16,11 +21,44 @@ from src.pipline.training_pipeline import TrainingPipeline
 # Initialize FastAPI application
 app = FastAPI()
 
-# Mount the 'static' directory for serving static files (like CSS)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Resolve paths from this file so static/templates work regardless of process CWD
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
+TEMPLATES_DIR = BASE_DIR / "templates"
+
+# #region agent log
+def _agent_dbg(payload: dict) -> None:
+    payload.setdefault("sessionId", "59a296")
+    payload.setdefault("timestamp", int(time.time() * 1000))
+    log_path = BASE_DIR / "debug-59a296.log"
+    with log_path.open("a", encoding="utf-8") as _f:
+        _f.write(json.dumps(payload) + "\n")
+
+
+_cwd_static = Path("static")
+_style_cwd = _cwd_static / "style.css"
+_style_abs = STATIC_DIR / "style.css"
+_agent_dbg(
+    {
+        "hypothesisId": "A,D",
+        "location": "app.py:startup",
+        "message": "static resolution vs cwd",
+        "runId": "post-fix-2",
+        "data": {
+            "cwd": os.getcwd(),
+            "static_dir_configured": str(STATIC_DIR),
+            "relative_static_exists": _cwd_static.is_dir(),
+            "absolute_static_exists": STATIC_DIR.is_dir(),
+            "style_css_via_cwd_rel": _style_cwd.is_file(),
+            "style_css_via_app_parent": _style_abs.is_file(),
+            "style_size_if_abs": _style_abs.stat().st_size if _style_abs.is_file() else None,
+        },
+    }
+)
+# #endregion
 
 # Set up Jinja2 template engine for rendering HTML templates
-templates = Jinja2Templates(directory='templates')
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 # Allow all origins for Cross-Origin Resource Sharing (CORS)
 origins = ["*"]
@@ -33,6 +71,30 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# #region agent log
+@app.middleware("http")
+async def _agent_static_mw(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/static"):
+        _agent_dbg(
+            {
+                "hypothesisId": "A,B,C",
+                "location": "app.py:middleware",
+                "message": "static response",
+                "runId": "post-fix-2",
+                "data": {
+                    "path": request.url.path,
+                    "status_code": response.status_code,
+                    "content_type": response.headers.get("content-type"),
+                },
+            }
+        )
+    return response
+
+
+# #endregion
 
 class DataForm:
     """
@@ -78,6 +140,27 @@ async def index(request: Request):
     """
     Renders the main HTML form page for vehicle data input.
     """
+    # #region agent log
+    try:
+        _css_url_for = str(request.url_for("static", path="style.css"))
+    except Exception as _e:
+        _css_url_for = f"url_for_error:{type(_e).__name__}"
+    _agent_dbg(
+        {
+            "hypothesisId": "F",
+            "location": "app.py:index",
+            "message": "GET /",
+            "runId": "post-fix-2",
+            "data": {
+                "scheme": request.url.scheme,
+                "path": request.url.path,
+                "host": request.headers.get("host"),
+                "css_href_in_template": "/static/style.css",
+                "css_url_for_resolved": _css_url_for,
+            },
+        }
+    )
+    # #endregion
     return templates.TemplateResponse(
         request,
         "vehicledata.html",
@@ -143,6 +226,10 @@ async def predictRouteClient(request: Request):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+# Mount static files last so API routes take precedence; use absolute path (not CWD-relative)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # Main entry point to start the FastAPI server
 if __name__ == "__main__":

@@ -62,6 +62,8 @@ class VehicleData:
         logging.info("Entered the get_vehicle_data_as_dict method of VehicleData class")
 #since pandas expects inputs in the form of list/array to convert to dataframe, hence we passed in []
         try:
+            # Match sklearn feature_names_in_: get_dummies uses "Vehicle_Age_< 1 Year" but _rename_columns
+            # in training used the wrong key for that column, so it stayed unchanged in the fitted pipeline.
             input_data = {
                 "Gender": [self.Gender],
                 "Age": [self.Age],
@@ -71,9 +73,9 @@ class VehicleData:
                 "Annual_Premium": [self.Annual_Premium],
                 "Policy_Sales_Channel": [self.Policy_Sales_Channel],
                 "Vintage": [self.Vintage],
-                "Vehicle_Age_lt_1_Year": [self.Vehicle_Age_lt_1_Year],
+                "Vehicle_Age_< 1 Year": [self.Vehicle_Age_lt_1_Year],
                 "Vehicle_Age_gt_2_Years": [self.Vehicle_Age_gt_2_Years],
-                "Vehicle_Damage_Yes": [self.Vehicle_Damage_Yes]
+                "Vehicle_Damage_Yes": [self.Vehicle_Damage_Yes],
             }
 
             logging.info("Created vehicle data dict")
